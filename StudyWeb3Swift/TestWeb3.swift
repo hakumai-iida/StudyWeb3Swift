@@ -158,9 +158,9 @@ class TestWeb3 {
         }
 
         // イーサリアムアドレスの確認
-        let ethreumAddress = helper.getCurEthereumAddress()
+        let ethereumAddress = helper.getCurEthereumAddress()
         print( "@ CURRENT KEYSTORE" )
-        print( "@ ethreumAddress:", ethreumAddress! )
+        print( "@ ethereumAddress:", ethereumAddress! )
     }
     
     //------------------------

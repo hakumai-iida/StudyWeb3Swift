@@ -35,7 +35,7 @@
 > @ loadKeystoreJson: json= {"version":3,"id":"ebb74846-ab37-4da8-a3db-74c3edd5e4c3","crypto":{"ciphertext":"22489751acd45de1dbba65cdc4660c84835f245f5a6e3974412ea1b26a094655","cipherparams":{"iv":"8c30430c5286a61bfb96f746f2169a38"},"kdf":"scrypt","kdfparams":{"r":6,"p":1,"n":4096,"dklen":32,"salt":"b2f8675406040fad418db1ab77b8c9e0b4a4c143e37c2ab9840bdbc54cd1be98"},"mac":"d89db9e4a943cf207dd96feb05ea9f95218f8d450e409caf882d2d2c85ac6b92","cipher":"aes-128-ctr"},"address":"0x69a8750b21bef61b3a91d5e4f529c05daacff242"}  
 > @ loadKeystore: result= true  
 > @ CURRENT KEYSTORE  
-> @ ethreumAddress: 0x69A8750B21BEf61B3A91D5e4F529C05dAacFf242  
+> @ ethereumAddress: 0x69A8750B21BEf61B3A91D5e4F529C05dAacFf242  
 > @------------------  
 > @ checkBalance  
 > @------------------  
@@ -92,7 +92,7 @@
 
 **sol/HelloWorld.sol** はテストアプリがアクセスするコントラクトのソースとなります。**Xcode** では利用していません。
 
-テストが開始すると、デフォルトで **Rinkeby** テストネットへ接続します。  
+テストが開始されると、デフォルトで **Rinkeby** テストネットへ接続します。  
 
 初回の呼び出し時であればアカウントを作成し、その内容をアプリのドキュメント領域に **key.json** の名前で出力します。二度目以降の呼び出し時は **key.json** からアカウント情報を読み込んで利用します。  
 
