@@ -172,7 +172,7 @@ class TestWeb3 {
         print( "@------------------" )
         
         let balance = self.helper.getCurBalance()
-        print( "@ balance:", balance, "wei" )
+        print( "@ balance:", balance!, "wei" )
     }
     
     //------------------------

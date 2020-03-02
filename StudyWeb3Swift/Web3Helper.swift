@@ -59,73 +59,50 @@ class Web3Helper{
     // 定数（※[cbc]だと[MetaMask]でインポートに失敗するので、暗号モードは[ctr]を指定）
     public let aesMode = "aes-128-ctr"
 
-    // メンバー
-    private var web3 : web3?                        // web3インスタンス
-    private var curTarget : target?                 // 現在の接続先
-    private var curKeystore : EthereumKeystoreV3?   // 現在のキーストア
-    private var curAddress : EthereumAddress?       // 現在のアドレス
-        
-    //-----------------------
-    // イニシャライザ
-    //-----------------------
-    public init() {
-        self.web3 = nil
-        self.curTarget = nil
-        self.curKeystore = nil
-        self.curAddress  = nil
-    }
+    // 管理要素
+    private var web3 : web3? = nil                      // web3インスタンス
+    private var curTarget : target? = nil               // 現在のweb3の接続先
+    private var curKeystore : EthereumKeystoreV3? = nil // 現在のキーストア
+    private var curAddress : EthereumAddress? = nil     // 現在のアドレス
     
     //-----------------------
-    // 有効性の判定
-    //-----------------------
-    public func isValid() -> Bool{
-        if self.curTarget == nil {
-            return false
-        }
-        
-        if self.web3 == nil {
-            return false
-        }
-        
-        if self.curKeystore == nil {
-            return false
-        }
-        
-        if self.curAddress == nil {
-            return false
-        }
-        
-        if self.web3!.provider.attachedKeystoreManager == nil {
-            return false
-        }
-        
-        return true
-    }
-    
-    //-----------------------
-    // ターゲットのクリア
+    // 接続先のクリア
     //-----------------------
     public func clearTarget() {
         self.web3 = nil
         self.curTarget = nil
     }
-    
+
     //-----------------------
-    // ターゲット設定
+    // 接続先の有効性を判定
+    //-----------------------
+    public func isTargetValid() -> Bool{
+        if self.web3 == nil {
+            return false
+        }
+
+        if self.curTarget == nil {
+            return false
+        }
+        
+        return true
+    }
+            
+    //-----------------------
+    // 接続先の設定
     //-----------------------
     public func setTarget( target: target ) -> Bool{
-        // 古いターゲットは切断
-        clearTarget()
-        
         let url = URL( string: target.infuraUrl() )
         self.web3 = try? Web3.new( url! )
-        
-        if self.web3 != nil {
-            self.curTarget = target;
+        self.curTarget = target;
+
+        // 接続先が有効になったら成功
+        if self.isTargetValid() {
             return true
         }
 
-        self.curTarget = nil
+        // ここまできたら用心にクリア
+        clearTarget()
         return false
     }
     
@@ -133,13 +110,21 @@ class Web3Helper{
     // web3取得
     //-----------------------
     public func getWeb3() -> web3?{
+        if !self.isTargetValid(){
+            return nil
+        }
+        
         return self.web3;
     }
 
     //-----------------------
-    // ターゲット取得
+    // 接続先取得
     //-----------------------
     public func getCurTarget() -> target?{
+        if !self.isTargetValid(){
+            return nil
+        }
+        
         return self.curTarget
     }
     
@@ -150,48 +135,82 @@ class Web3Helper{
         self.curKeystore = nil
         self.curAddress = nil
     }
+    
+    //-----------------------
+    // ヘルパーの有効性を判定
+    //-----------------------
+    public func isValid() -> Bool{
+        if !self.isTargetValid() {
+            return false
+        }
+
+        if self.curKeystore == nil {
+            return false
+        }
+        
+        if self.curAddress == nil {
+            return false
+        }
+
+        if self.web3!.provider.attachedKeystoreManager == nil {
+            return false
+        }
+
+        return true
+    }
 
     //-----------------------
     // 新規キーストアの作成
     //-----------------------
     public func createNewKeystore( password : String ) -> Bool{
-        // 古いキーストアは削除
-        self.clearKeystore()
-        
-        // キーストアの作成
-        self.curKeystore = try! EthereumKeystoreV3( password: password, aesMode: self.aesMode )
-        self.curAddress = self.curKeystore!.addresses!.first
+        if !isTargetValid(){
+            print( "@ Web3Helper.createNewKeystore: invalid call" )
+            return false
+        }
 
-        // キーストアマネージャにアタッチ
-        let keystoreManager = KeystoreManager([self.curKeystore!])
-        web3!.addKeystoreManager( keystoreManager )
-        
-        return isValid()
-     }
+        // 新規作成してアタッチ
+        return attachKeystore( try! EthereumKeystoreV3( password: password, aesMode: self.aesMode ) )
+    }
     
     //-----------------------------------------
     // キーストアの読み込み
     //-----------------------------------------
     public func loadKeystore( json : String ) -> Bool{
-        // 古いキーストアは削除
-        self.clearKeystore()
+        if !isTargetValid(){
+            print( "@ Web3Helper.loadKeystore: invalid call" )
+            return false
+        }
 
-        // キーストアの作成
-        self.curKeystore = EthereumKeystoreV3( json )
-        self.curAddress = self.curKeystore!.addresses!.first
-        
-        // キーストアマネージャにアタッチ
-        let keystoreManager = KeystoreManager([self.curKeystore!])
-        web3!.addKeystoreManager( keystoreManager )
-        
-        return isValid()
+        // JSONから読み込んでアタッチ
+        return attachKeystore( EthereumKeystoreV3( json ) )
     }
+
+    //-----------------------------------
+    // キーストアのアタッチ
+    //-----------------------------------
+    internal func attachKeystore( _ keystore: EthereumKeystoreV3? ) -> Bool{
+        if isTargetValid(){
+            self.curKeystore = keystore;
+            self.curAddress = self.curKeystore!.addresses!.first
+            self.web3!.addKeystoreManager( KeystoreManager([self.curKeystore!]) )
+        
+            // ヘルパーが有効になったら成功
+            if isValid(){
+                return true;
+            }
+        }
+        
+        // ここまできたら用心にクリア
+        self.clearKeystore()
+        return false
+     }
 
     //-----------------------------
     // 現アドレスの取得
     //-----------------------------
     public func getCurAddress() -> EthereumAddress? {
         if !self.isValid() {
+            print( "@ Web3Helper.getCurAddress: invalid call" )
             return nil
         }
         
@@ -203,6 +222,7 @@ class Web3Helper{
     //-----------------------------
     public func getCurKeystoreJson() -> String? {
         if !self.isValid() {
+            print( "@ Web3Helper.getCurKeystoreJson: invalid call" )
             return nil
         }
         
@@ -215,6 +235,7 @@ class Web3Helper{
     //-----------------------
     public func getCurPrivateKey( password : String ) -> String? {
         if !self.isValid() {
+            print( "@ Web3Helper.getCurPrivateKey: invalid call" )
             return nil
         }
 
@@ -227,6 +248,7 @@ class Web3Helper{
     //--------------------------------
     public func getCurEthereumAddress() -> String? {
         if !self.isValid() {
+            print( "@ Web3Helper.getCurEthereumAddress: invalid call" )
             return nil
         }
 
@@ -237,16 +259,17 @@ class Web3Helper{
     //-----------------------
     // 現アドレスの残高の取得
     //-----------------------
-    public func getCurBalance() -> BigUInt{
+    public func getCurBalance() -> BigUInt?{
         if !self.isValid() {
-            return 0
+            print( "@ Web3Helper.getCurBalance: invalid call" )
+            return nil
         }
         
         do{
-            let balance = try self.web3!.eth.getBalance( address: self.curAddress! )
-            return balance
+            return try self.web3!.eth.getBalance( address: self.curAddress! )
         } catch {
-            return 0
+            print( "@ Web3Helper.getCurBalance: caught an error" )
+            return nil
         }
     }
 }
