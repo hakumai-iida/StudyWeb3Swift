@@ -13,10 +13,11 @@ class GameScene: SKScene {
     
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
-    
-    // 追加コード：テストクラスのインスタンス
-    private let testWeb3 = TestWeb3()
 
+    //- 追加 テストクラスのインスタンス -----
+    private let testWeb3 = TestWeb3()
+    //---------------------------------
+    
     override func didMove(to view: SKView) {
         
         // Get label node from scene and store it for use later
@@ -48,8 +49,9 @@ class GameScene: SKScene {
             self.addChild(n)
         }
         
-        // 追加コード：テストの呼び出し
+        //- 追加 テストの呼び出し ----
         testWeb3.test()
+        //------------------------
     }
     
     func touchMoved(toPoint pos : CGPoint) {
