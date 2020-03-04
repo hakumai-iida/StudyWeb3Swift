@@ -103,13 +103,13 @@
 　2020年3月1日の時点で、下記の環境で動作確認を行なっています。  
 
 #### 実装環境
-　・**macOS Mojave 10.14.4**  
-　・**Xcode 11.3.1(11C504)**
+　・macOS Mojave 10.14.4  
+　・Xcode 11.3.1(11C504)
 
 #### 確認端末
-　・**iPhone X** **iOS 11.2**  
-　・**iPhone 7 plus** **iOS 13.3.1**  
-　・**iPhone 6 plus** **iOS 10.3.3**  
-　・**iPhone 6** **iOS 11.2.6**  
-　・**iPhone 5 s** **iOS 10.2**  
-　・**iPad**(第六世代) **iOS 12.2**  
+　・iPhoneX iOS 11.2  
+　・iPhone7plus iOS 13.3.1  
+　・iPhone6plus iOS 10.3.3  
+　・iPhone6 iOS 11.2.6  
+　・iPhone5s iOS 10.2  
+　・iPad**(第六世代) iOS 12.2  
